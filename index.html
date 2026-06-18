@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body { display: flex; flex-direction: column; align-items: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fdf2f8; margin: 0; padding: 20px; }
+  h2 { color: #d63384; margin-bottom: 10px; text-align: center; }
+  #puzzle-container { width: 320px; height: 320px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; background: #333; border: 8px solid #d63384; border-radius: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+  .tile { width: 100%; height: 100%; background-size: 320px 320px; cursor: pointer; border: none; border-radius: 4px; transition: transform 0.1s; }
+  .tile:active { transform: scale(0.95); }
+  .empty { background: #2a2a2a; cursor: default; }
+  #message { margin-top: 20px; font-size: 22px; color: #d63384; font-weight: bold; min-height: 30px; }
+  #shuffle-btn { margin-top: 10px; padding: 12px 30px; font-size: 18px; cursor: pointer; background: #d63384; color: white; border: none; border-radius: 50px; font-weight: bold; box-shadow: 0 4px 10px rgba(214, 51, 132, 0.3); }
+  #shuffle-btn:hover { background: #b82b6e; }
+  @media (max-width: 400px) { #puzzle-container { width: 280px; height: 280px; } .tile { background-size: 280px 280px; } }
+</style>
+</head>
+<body>
+
+<h2>❤️ Happy Monthsary, My Adi! ❤️</h2>
+<div id="puzzle-container"></div>
+<div id="message"></div>
+<button id="shuffle-btn">🔄 Shuffle Puzzle</button>
+
+<script>
+  // --- YOUR IMAGE LINK IS HERE (I replaced it with a working test photo) ---
+  const imageUrl = "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&h=500&fit=crop"; 
+  
+  const container = document.getElementById('puzzle-container');
+  const message = document.getElementById('message');
+  let tiles = [];
+  let emptyIndex = 15;
+
+  function initPuzzle() {
+    tiles = Array.from({ length: 16 }, (_, i) => i);
+    shuffleArray(tiles);
+    if (tiles[15] !== 15) {
+      const idx = tiles.indexOf(15);
+      [tiles[idx], tiles[15]] = [tiles[15], tiles[idx]];
+    }
+    emptyIndex = 15;
+    renderPuzzle();
+    message.innerText = "";
+  }
+
+  function renderPuzzle() {
+    container.innerHTML = '';
+    tiles.forEach((num, index) => {
+      const div = document.createElement('div');
+      div.className = 'tile';
+      if (num === 15) {
+        div.classList.add('empty');
+      } else {
+        const row = Math.floor(num / 4);
+        const col = num % 4;
+        div.style.backgroundImage = `url(${imageUrl})`;
+        div.style.backgroundPosition = `-${col * (320/4)}px -${row * (320/4)}px`;
+        div.onclick = () => moveTile(index);
+      }
+      container.appendChild(div);
+    });
+  }
+
+  function moveTile(index) {
+    const row = Math.floor(index / 4);
+    const col = index % 4;
+    const emptyRow = Math.floor(emptyIndex / 4);
+    const emptyCol = emptyIndex % 4;
+    if ((Math.abs(row - emptyRow) + Math.abs(col - emptyCol)) === 1) {
+      [tiles[index], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[index]];
+      emptyIndex = index;
+      renderPuzzle();
+      checkWin();
+    }
+  }
+
+  function checkWin() {
+    if (tiles.every((val, idx) => val === idx)) {
+      message.innerText = "🎉 You did it! I love you, Adi! 🎉";
+    }
+  }
+
+  function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+  }
+
+  document.getElementById('shuffle-btn').onclick = initPuzzle;
+  initPuzzle();
+</script>
+</body>
+</html>
